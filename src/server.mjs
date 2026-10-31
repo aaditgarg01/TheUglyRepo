@@ -18,18 +18,25 @@ async function body(request) {
   if(!value||typeof value!=='object'||Array.isArray(value)) throw new InputError('Expected a JSON object.');
   return value;
 }
-export async function createServer({dataFile=resolve(root,'data/local.json')}={}) {
-  const store=await openStore(dataFile,seed);
+export async function createServer({dataFile=resolve(root,'data/local.json'),readOnly=false}={}) {
+  // The hosted preview always reads a fresh seed and never opens a writable store.
+  const store=readOnly ? {
+    read:async()=>structuredClone(seed),
+    update:async()=>{throw new InputError('This hosted preview is read-only. Clone the repository to test changes locally.',403);}
+  } : await openStore(dataFile,seed);
   return http.createServer(async(request,response)=>{
     try {
       const url=new URL(request.url,'http://localhost');
       const path=url.pathname,method=request.method;
-      // Local-only writes: reject requests initiated by an unrelated website.
+      if(readOnly && !['GET','HEAD'].includes(method) && !['/api/quote','/api/diagnostics'].includes(path)) {
+        throw new InputError('This hosted preview is read-only. Clone the repository to test changes locally.',403);
+      }
+      // Preview computations accept only same-origin browser requests.
       if(!['GET','HEAD'].includes(method)){
-        if(request.headers.origin && request.headers.origin!==`http://${request.headers.host}`) throw new InputError('Origin not allowed.',403);
+        if(request.headers.origin && request.headers.origin!==`${readOnly?'https':'http'}://${request.headers.host}`) throw new InputError('Origin not allowed.',403);
         if(!String(request.headers['content-type']??'').startsWith('application/json')) throw new InputError('Send application/json.',415);
       }
-      if(method==='GET'&&path==='/api/health') return json(response,200,{ok:true,mode:'local-sandbox'});
+      if(method==='GET'&&path==='/api/health') return json(response,200,readOnly?{ok:true,mode:'hosted-preview',readOnly:true}:{ok:true,mode:'local-sandbox'});
       if(method==='GET'&&path==='/api/operations') return json(response,200,operations);
       if(method==='POST'&&path==='/api/diagnostics') {
         const input=await body(request);const key=input.module+'.'+input.name;

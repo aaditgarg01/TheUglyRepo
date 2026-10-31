@@ -2,6 +2,10 @@
 
 Base: `http://127.0.0.1:3000`. Write requests must use `Content-Type: application/json`. Errors return `{ "error": "message" }`. No external services are called. The server binds to loopback by default.
 
+## Hosted preview
+
+The live base URL is `https://the-ugly-repo.vercel.app`. It uses the same intentionally defective domain logic with read-only seed data. `/api/health` reports `{ok:true, mode:"hosted-preview", readOnly:true}`. Saved-data writes return 403; `/api/quote` and `/api/diagnostics` remain available because they do not save changes. Use the local base URL for full write workflows.
+
 ## Read routes
 
 | Route | Inputs | Returns |

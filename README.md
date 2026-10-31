@@ -2,6 +2,10 @@
 
 **VIT-Stellar — Web & Tech Junior Core Recruitment, Round 1**
 
+**Live demo:** [Open Stellar Ops on Vercel](https://the-ugly-repo.vercel.app)
+
+The hosted version is a **read-only preview** of the intentionally buggy starter. Explore the dashboard, event catalogue, equipment, schedule and telemetry; price previews and the diagnostics workbench are available. Creating/cancelling bookings, changing equipment, saving preferences and resetting data are available in your local copy. Clone the repository and follow the setup below for the full debugging task.
+
 A local event-operations dashboard for **Rovaris**, **Aerovate**, and **Celestial Dive**. It starts successfully, but numerous behaviours are intentionally wrong. Your job is to investigate the application, reproduce defects, and make verified repairs.
 
 ## Run locally
@@ -79,7 +83,9 @@ src/domain/         Domain operations
 public/             Browser interface (HTML/CSS/JavaScript)
 data/seed.json      Fictional starting state
 data/operations.json Workbench contracts and sample arguments
-tests/              Public infrastructure smoke tests
+tests/              Public infrastructure and hosted-preview tests
+api/index.mjs       Read-only Vercel function adapter
+vercel.json         Hosting and API routing configuration
 docs/API.md         API reference and example requests
 ```
 
@@ -91,6 +97,12 @@ docs/API.md         API reference and example requests
 - Changes persist to ignored `data/local.json`. Use **Reset demo data** in Overview to restore the seed. Tests use temporary files and leave your local snapshot untouched.
 - `.env.example` documents optional environment settings; it is not auto-loaded. Set variables through your shell. Never commit real secrets or student records.
 - This intentionally defective sandbox is for local evaluation. Keep the default loopback host. It is not an authenticated production booking system, engineering calculator or hardware controller.
+
+## Hosting
+
+The public demo is deployed on Vercel at **https://the-ugly-repo.vercel.app**. The production preview always reads the fictional seed and rejects saved-data writes. Local `npm start` retains the full editable workflow and local persistence. The deliberate domain defects are the same in both modes.
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the Vercel configuration. Applicants should work in their **own new public repository**, not this source repository. Only the source owner currently has write access; public visibility does not grant permission to push.
 
 ## Event context
 
